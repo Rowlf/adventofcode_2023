@@ -22,7 +22,7 @@ class ColorCounter(map: Map<Colors,Int> = Colors.entries.associateWith { 0 })
     override fun toString(): String = this.keys.joinToString { "$it:${this[it]}"}
 }
 
-data class Stats(var sumId: Int = 0, var sumPower: Int = 0)
+data class Stats(val sumId: Int = 0, val sumPower: Int = 0)
 
 fun main() {
     val counterLimit = ColorCounter("12 red, 13 green, 14 blue")
