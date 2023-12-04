@@ -7,28 +7,24 @@ fun main() {
     val cardCounts = mutableMapOf<Int,Int>()     // remember the card count
 
     sequenceOfIndexed(filename = "Day04.txt").forEach { (lineNo,line) ->
-        val lineSplit = line.split('|')
-        val drawnSplit = lineSplit[0].split(':')
-        val drawnNumbers = drawnSplit[1].split(' ').filter { it.trim().isNotBlank() }.map { it.toInt() }.toSet()
-        val myNumbers = lineSplit[1].split(' ').filter { it.trim().isNotBlank() }.map { it.toInt() }.toSet()
+        fun String.toIntSet() = this.split(' ').filter { it.trim().isNotBlank() }.map { it.toInt() }.toSet()
+
+        val (drawnNumbers,myNumbers) = line.split('|').let { (drawnStr,myStr) ->
+            drawnStr.split(':')[1].toIntSet() to myStr.toIntSet()
+        }
 
         cardCounts[lineNo] = cardCounts.getOrPut(lineNo) { 0 } + 1
 
-        var points = 0
-        var cnt = 0
-        drawnNumbers.forEach { no ->
-            if (no in myNumbers) {
-                points = if (points==0) 1 else points*2
-                ++cnt
-            }
-        }
+        val (points,cnt) = drawnNumbers.filter { num -> num in myNumbers }
+            .fold(0 to 0) { (pts,ct), _ -> (if (pts==0) 1 else pts*2) to ct+1}
+
         sumPoints += points
 
         if (cnt>0) {
             // if you are lucky, add cards to card count
-            for (j in 0..<cardCounts[lineNo]!!) {
-                for (i in lineNo + 1..lineNo + cnt)
-                    cardCounts[i] = cardCounts.getOrPut(i) { 0 } + 1
+            val addCards = cardCounts[lineNo]!!
+            (lineNo + 1..lineNo + cnt).forEach { i->
+                cardCounts[i] = cardCounts.getOrPut(i) { 0 } + addCards
             }
         }
     }
