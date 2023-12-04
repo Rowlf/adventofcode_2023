@@ -33,5 +33,5 @@ fun main() {
         }
     }
     val sumCards = cardCounts.values.sum()
-    println("04.12.23 AoC | calibration value: $sumPoints $sumCards")
+    println("04.12.23 AoC | part 1: $sumPoints, part 2: $sumCards")
 }
