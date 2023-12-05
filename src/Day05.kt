@@ -26,6 +26,8 @@ class Planting(private val map: MutableMap<Category,CatMap> = mutableMapOf()) {
     private var lastFromCat: Category = Category.NONE
     val seeds = mutableListOf<Long>()
 
+    private val order = mutableListOf<CatMap>() // or Pair<Category,CatMap>
+
     // depends on the lastFromCat state... we can live with that for now
     fun update(line: String) = apply {
         // assume a map exists only once and the file format is ok
@@ -49,23 +51,26 @@ class Planting(private val map: MutableMap<Category,CatMap> = mutableMapOf()) {
         }
     }
 
-    fun mapTo(seed: Long) : Long {
-        var n = seed
+    fun prepareMapping() {
         var catFrom = Category.SEED
         do {
-            n = map[catFrom]!!.apply { catFrom = dstCategory }.mapTo(n)
+            order.add(map[catFrom]!!.apply { catFrom = dstCategory })
         } while (catFrom != Category.LOCATION)
-        return n
     }
+
+    // needs preparation to gain speed
+    fun mapTo(seed: Long) : Long = order.fold(seed) { n, map -> map.mapTo(n) }
 }
 
 // solutions part 1: 265018614, part 2: 63179500
 // Day05a: 35 / 46
-// needs about 8 min
+// needs about 6-7 min
 fun main() {
     sequenceOf(filename = "Day05.txt").fold(Planting()) { planting, line ->
         planting.update(line)
     }.apply {
+        prepareMapping()
+
         print("05.12.23 AoC | ")
 
         val minPart1 = seeds.minOf { n -> mapTo(n) }
