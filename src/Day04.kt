@@ -6,7 +6,7 @@ fun main() {
     var sumPoints = 0
     val cardCounts = mutableMapOf<Int,Int>()     // remember the card count
 
-    sequenceOfIndexed(filename = "Day04.txt").forEach { (lineNo,line) ->
+    sequenceOf(filename = "Day04.txt").withIndex().forEach { (lineNo,line) ->
         fun String.toIntSet() = this.split(' ').filter { it.trim().isNotBlank() }.map { it.toInt() }.toSet()
 
         val (drawnNumbers,myNumbers) = line.split('|').let { (drawnStr,myStr) ->

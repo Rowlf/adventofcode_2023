@@ -70,8 +70,8 @@ class MachineInfos(
 }
 
 fun main() {
-    sequenceOfIndexed(filename = "Day03.txt").fold(MachineInfos()) {
-            cc, (lineNo, line) ->  cc.updateFrom(lineNo, line)
+    sequenceOf(filename = "Day03.txt").withIndex().fold(MachineInfos()) {
+            infos, (lineNo, line) ->  infos.updateFrom(lineNo, line)
     }.apply {
 
         // part 1

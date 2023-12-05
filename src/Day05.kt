@@ -10,10 +10,10 @@ enum class Category(val category: String) {
 data class Ranges(val srcRange:LongRange, val dstRange:LongRange)
 
 class CatMap(val dstCategory: Category, val ranges: MutableList<Ranges> = mutableListOf()) {
-    fun mapTo(n:Long): Long {
-        for (r in ranges) {
-            if (n in r.srcRange)
-                return n-r.srcRange.first +r.dstRange.first
+    fun mapTo(n: Long): Long {
+        for (rg in ranges) {
+            if (n in rg.srcRange)
+                return n-rg.srcRange.first + rg.dstRange.first
         }
         return n
     }
@@ -24,13 +24,16 @@ fun String.toLongList() = this.split(' ').filter { it.trim().isNotBlank() }.map 
 class Planting(private val map: MutableMap<Category,CatMap> = mutableMapOf()) {
 
     private var lastFromCat: Category = Category.NONE
+    val seeds = mutableListOf<Long>()
 
     // depends on the lastFromCat state... we can live with that for now
-    fun update(line: String) {
+    fun update(line: String) = apply {
         // assume a map exists only once and the file format is ok
         val trimmedLine = line.trim()
         when  {
             trimmedLine.isBlank() -> lastFromCat = Category.NONE
+            trimmedLine.startsWith("seeds:")
+                -> seeds.addAll(line.removePrefix("seeds:").toLongList())
             trimmedLine.endsWith("map:") -> {
                 val parts = trimmedLine.split("-to-")
                 val fromCat = Category.valueOf(parts[0].trim().uppercase(Locale.getDefault()))
@@ -46,33 +49,30 @@ class Planting(private val map: MutableMap<Category,CatMap> = mutableMapOf()) {
         }
     }
 
-    fun mapTo(sd: Long) : Long {
-        var n = sd
+    fun mapTo(seed: Long) : Long {
+        var n = seed
         var catFrom = Category.SEED
-        while (catFrom!=Category.LOCATION) {
+        do {
             n = map[catFrom]!!.apply { catFrom = dstCategory }.mapTo(n)
-        }
+        } while (catFrom != Category.LOCATION)
         return n
     }
 }
 
 // solutions part 1: 265018614, part 2: 63179500
 // Day05a: 35 / 46
+// needs about 8 min
 fun main() {
-    var seeds = listOf<Long>()
-    val planting = Planting()
-    sequenceOf(filename = "Day05.txt").forEach { line ->
-        if (seeds.isEmpty() && line.isNotBlank() && line.startsWith("seeds:")) {
-            seeds  = line.removePrefix("seeds:").toLongList()
-        } else {
-            planting.update(line)
-        }
+    sequenceOf(filename = "Day05.txt").fold(Planting()) { planting, line ->
+        planting.update(line)
+    }.apply {
+        print("05.12.23 AoC | ")
+
+        val minPart1 = seeds.minOf { n -> mapTo(n) }
+        print("part 1: $minPart1")
+
+        val minPart2 = (seeds.indices step 2).map { i -> seeds[i]..<seeds[i]+seeds[i + 1] }
+            .minOf { rg -> rg.minOf { n -> mapTo(n) } }
+        println(", part 2: $minPart2")
     }
-
-    val minPart1 = seeds.minOf { n -> planting.mapTo(n) }
-    val minPart2 = (seeds.indices step 2).map { i -> LongRange(seeds[i],seeds[i]+seeds[i + 1]-1) }
-        .minOf { rg -> rg.minOf { n -> planting.mapTo(n) } }
-
-    // needs about 11-12 min
-    println("05.12.23 AoC | part 1: $minPart1, part 2: $minPart2")
 }
