@@ -12,4 +12,8 @@ fun sequenceOf(filename: String) = sequence {
         .use { yieldAll(it.lineSequence()) }
 }
 
-// fun readTextfile(filename: String) = Path("src/data/$filename").readLines()
+fun readTextfile(filename: String) = Path("src/data/$filename").readLines()
+
+fun String.toIntList() = this.split(' ').filter { it.trim().isNotBlank() }.map { it.toInt() }
+fun String.toLongList() = this.split(' ').filter { it.trim().isNotBlank() }.map { it.toLong() }
+

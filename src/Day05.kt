@@ -19,8 +19,6 @@ class CatMap(val dstCategory: Category, val ranges: MutableList<Ranges> = mutabl
     }
 }
 
-fun String.toLongList() = this.split(' ').filter { it.trim().isNotBlank() }.map { it.toLong() }
-
 class Planting(private val map: MutableMap<Category,CatMap> = mutableMapOf()) {
 
     private var lastFromCat: Category = Category.NONE
