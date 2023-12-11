@@ -14,6 +14,14 @@ fun sequenceOf(filename: String) = sequence {
 
 fun readTextfile(filename: String) = Path("src/data/$filename").readLines()
 
+class TextBlock(val filename: String, filterNotBlank:Boolean=true)
+    : List<String> by (readTextfile(filename = filename)
+    .filter { !filterNotBlank || it.trim().isNotBlank() })
+{
+    val rows get() = size
+    val cols get() = this[0].length
+}
+
 fun String.toIntList() = this.split(' ').filter { it.trim().isNotBlank() }.map { it.toInt() }
 fun String.toLongList() = this.split(' ').filter { it.trim().isNotBlank() }.map { it.toLong() }
 
